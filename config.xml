@@ -2,4 +2,6 @@
 <root>
   <url>http://www.sberbank.ru/ru/person</url>
   <redirected_url>http://www.sberbank.ru/ru/quotes/converter/</redirected_url>
+  <browser>PhantomJS</browser>
+  <browser>Chrome</browser>
 </root>
