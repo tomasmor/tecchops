@@ -1,0 +1,203 @@
+<ns0:test-suite xmlns:ns0="urn:model.allure.qatools.yandex.ru" start="1475477093971" stop="1475477118933">
+  <name>test_check_redirect</name>
+  <test-cases>
+    <test-case start="1475477093971" status="passed" stop="1475477118676">
+      <name>TestRedirect.test_check_redirect[Chrome]</name>
+      <labels>
+        <label name="severity" value="normal"/>
+        <label name="thread" value="1507-MainThread"/>
+        <label name="host" value="Olgas-MacBook-Pro.local"/>
+      </labels>
+      <attachments/>
+      <steps/>
+    </test-case>
+    <test-case start="1475477118751" status="broken" stop="1475477118933">
+      <name>TestRedirect.test_check_redirect[Firefox]</name>
+      <failure>
+        <message>OSError: [Errno 2] No such file or directory</message>
+        <stack-trace>request = &lt;SubRequest 'browser_handler' for &lt;Function 'test_check_redirect[Firefox]'&gt;&gt;
+
+    @pytest.fixture(params=["Chrome", "Firefox"])
+    def browser_handler(request):
+        browser_type = request.param
+&gt;       driver = getattr(webdriver,browser_type)()
+
+conftest.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Library/Python/2.7/site-packages/selenium/webdriver/firefox/webdriver.py:80: in __init__
+    self.binary, timeout)
+/Library/Python/2.7/site-packages/selenium/webdriver/firefox/extension_connection.py:52: in __init__
+    self.binary.launch_browser(self.profile, timeout=timeout)
+/Library/Python/2.7/site-packages/selenium/webdriver/firefox/firefox_binary.py:67: in launch_browser
+    self._start_from_profile_path(self.profile.path)
+/Library/Python/2.7/site-packages/selenium/webdriver/firefox/firefox_binary.py:90: in _start_from_profile_path
+    env=self._firefox_env)
+/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py:710: in __init__
+    errread, errwrite)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;subprocess.Popen object at 0x110059310&gt;
+args = ['/Users/olgas/Applications/Firefox.app/Contents/MacOS/firefox-bin', '-foreground']
+executable = '/Users/olgas/Applications/Firefox.app/Contents/MacOS/firefox-bin'
+preexec_fn = None, close_fds = False, cwd = None
+env = {'Apple_PubSub_Socket_Render': '/private/tmp/com.apple.launchd.PUbKSQXQes/Render', 'HOME': '/Users/olgas', 'LC_CTYPE': 'UTF-8', 'LOGNAME': 'olgas', ...}
+universal_newlines = False, startupinfo = None, creationflags = 0, shell = False
+to_close = set([]), p2cread = None, p2cwrite = None, c2pread = None
+c2pwrite = 3, errread = None, errwrite = 3
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       cwd, env, universal_newlines,
+                       startupinfo, creationflags, shell, to_close,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite):
+        """Execute program (POSIX version)"""
+    
+        if isinstance(args, types.StringTypes):
+            args = [args]
+        else:
+            args = list(args)
+    
+        if shell:
+            args = ["/bin/sh", "-c"] + args
+            if executable:
+                args[0] = executable
+    
+        if executable is None:
+            executable = args[0]
+    
+        def _close_in_parent(fd):
+            os.close(fd)
+            to_close.remove(fd)
+    
+        # For transferring possible exec failure from child to parent
+        # The first char specifies the exception type: 0 means
+        # OSError, 1 means some other error.
+        errpipe_read, errpipe_write = self.pipe_cloexec()
+        try:
+            try:
+                gc_was_enabled = gc.isenabled()
+                # Disable gc to avoid bug where gc -&gt; file_dealloc -&gt;
+                # write to stderr -&gt; hang.  http://bugs.python.org/issue1336
+                gc.disable()
+                try:
+                    self.pid = os.fork()
+                except:
+                    if gc_was_enabled:
+                        gc.enable()
+                    raise
+                self._child_created = True
+                if self.pid == 0:
+                    # Child
+                    try:
+                        # Close parent's pipe ends
+                        if p2cwrite is not None:
+                            os.close(p2cwrite)
+                        if c2pread is not None:
+                            os.close(c2pread)
+                        if errread is not None:
+                            os.close(errread)
+                        os.close(errpipe_read)
+    
+                        # When duping fds, if there arises a situation
+                        # where one of the fds is either 0, 1 or 2, it
+                        # is possible that it is overwritten (#12607).
+                        if c2pwrite == 0:
+                            c2pwrite = os.dup(c2pwrite)
+                        if errwrite == 0 or errwrite == 1:
+                            errwrite = os.dup(errwrite)
+    
+                        # Dup fds for child
+                        def _dup2(a, b):
+                            # dup2() removes the CLOEXEC flag but
+                            # we must do it ourselves if dup2()
+                            # would be a no-op (issue #10806).
+                            if a == b:
+                                self._set_cloexec_flag(a, False)
+                            elif a is not None:
+                                os.dup2(a, b)
+                        _dup2(p2cread, 0)
+                        _dup2(c2pwrite, 1)
+                        _dup2(errwrite, 2)
+    
+                        # Close pipe fds.  Make sure we don't close the
+                        # same fd more than once, or standard fds.
+                        closed = { None }
+                        for fd in [p2cread, c2pwrite, errwrite]:
+                            if fd not in closed and fd &gt; 2:
+                                os.close(fd)
+                                closed.add(fd)
+    
+                        if cwd is not None:
+                            os.chdir(cwd)
+    
+                        if preexec_fn:
+                            preexec_fn()
+    
+                        # Close all other fds, if asked for - after
+                        # preexec_fn(), which may open FDs.
+                        if close_fds:
+                            self._close_fds(but=errpipe_write)
+    
+                        if env is None:
+                            os.execvp(executable, args)
+                        else:
+                            os.execvpe(executable, args, env)
+    
+                    except:
+                        exc_type, exc_value, tb = sys.exc_info()
+                        # Save the traceback and attach it to the exception object
+                        exc_lines = traceback.format_exception(exc_type,
+                                                               exc_value,
+                                                               tb)
+                        exc_value.child_traceback = ''.join(exc_lines)
+                        os.write(errpipe_write, pickle.dumps(exc_value))
+    
+                    # This exitcode won't be reported to applications, so it
+                    # really doesn't matter what we return.
+                    os._exit(255)
+    
+                # Parent
+                if gc_was_enabled:
+                    gc.enable()
+            finally:
+                # be sure the FD is closed no matter what
+                os.close(errpipe_write)
+    
+            # Wait for exec to fail or succeed; possibly raising exception
+            # Exception limited to 1M
+            data = _eintr_retry_call(os.read, errpipe_read, 1048576)
+        finally:
+            if p2cread is not None and p2cwrite is not None:
+                _close_in_parent(p2cread)
+            if c2pwrite is not None and c2pread is not None:
+                _close_in_parent(c2pwrite)
+            if errwrite is not None and errread is not None:
+                _close_in_parent(errwrite)
+    
+            # be sure the FD is closed no matter what
+            os.close(errpipe_read)
+    
+        if data != "":
+            try:
+                _eintr_retry_call(os.waitpid, self.pid, 0)
+            except OSError as e:
+                if e.errno != errno.ECHILD:
+                    raise
+            child_exception = pickle.loads(data)
+&gt;           raise child_exception
+E           OSError: [Errno 2] No such file or directory
+
+/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py:1335: OSError</stack-trace>
+      </failure>
+      <labels>
+        <label name="severity" value="normal"/>
+        <label name="thread" value="1507-MainThread"/>
+        <label name="host" value="Olgas-MacBook-Pro.local"/>
+      </labels>
+      <attachments/>
+      <steps/>
+    </test-case>
+  </test-cases>
+  <labels/>
+</ns0:test-suite>
