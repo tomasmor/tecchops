@@ -3,13 +3,14 @@
 from selenium import webdriver
 import logging
 
-from basic import find_currency_widget
+from basic import find_currency_widget, logger
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger()
 
 class TestWidgetExists(object):
     def test_check_widget_exists(self, browser_handler):
+        """
+        Check that widget with currency exists.
+        """
         currency = find_currency_widget(browser_handler)
         assert len(currency) > 0, "No widgets with currency found"
         logger.info(len(currency))
